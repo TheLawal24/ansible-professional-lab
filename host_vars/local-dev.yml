@@ -1,0 +1,6 @@
+---
+server_owner: "Lawal"
+server_role: "development-control-host"
+custom_banner: "Managed by Ansible Professional Lab"
+
+install_docker: false

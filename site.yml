@@ -1,0 +1,19 @@
+---
+- name: Configure Linux servers
+  hosts: all
+  gather_facts: true
+
+  roles:
+    - role: common
+      tags:
+        - common
+
+    - role: docker
+      tags:
+        - docker
+      when: install_docker | default(false)
+
+    - role: webapp
+      tags:
+        - webapp
+      when: install_docker | default(false)

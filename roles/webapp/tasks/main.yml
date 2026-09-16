@@ -1,0 +1,77 @@
+---
+- name: Create web application directory
+  ansible.builtin.file:
+    path: "{{ webapp_config_dir }}"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0755"
+  become: true
+
+- name: Deploy web application page
+  ansible.builtin.template:
+    src: index.html.j2
+    dest: "{{ webapp_config_dir }}/index.html"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0644"
+  notify: Restart web application
+
+- name: Check whether web application container exists
+  ansible.builtin.command:
+    cmd: docker inspect {{ webapp_name }}
+  register: webapp_container
+  changed_when: false
+  failed_when: false
+
+- name: Start web application container
+  ansible.builtin.command:
+    cmd: >
+      docker run -d
+      --name {{ webapp_name }}
+      --restart unless-stopped
+      -p {{ webapp_host_port }}:{{ webapp_container_port }}
+      -v {{ webapp_config_dir }}/index.html:/usr/share/nginx/html/index.html:ro
+      {{ webapp_image }}
+  when: webapp_container.rc != 0
+  register: webapp_started
+  changed_when: webapp_started.rc == 0
+
+- name: Check whether container is running
+  ansible.builtin.command:
+    cmd: docker inspect -f {% raw %}'{{.State.Running}}'{% endraw %} {{ webapp_name }}
+  register: webapp_running
+  changed_when: false
+  failed_when: false
+
+- name: Start existing container if stopped
+  ansible.builtin.command:
+    cmd: docker start {{ webapp_name }}
+  when:
+    - webapp_container.rc == 0
+    - webapp_running.stdout != "true"
+  changed_when: true
+
+- name: Flush handlers before health check
+  ansible.builtin.meta: flush_handlers
+
+- name: Wait for application port
+  ansible.builtin.wait_for:
+    host: 127.0.0.1
+    port: "{{ webapp_host_port }}"
+    timeout: 30
+
+- name: Verify application HTTP response
+  ansible.builtin.uri:
+    url: "http://127.0.0.1:{{ webapp_host_port }}"
+    status_code: 200
+    return_content: true
+  register: webapp_health
+
+- name: Verify correct application responded
+  ansible.builtin.assert:
+    that:
+      - webapp_health.status == 200
+      - webapp_health_marker in webapp_health.content
+    fail_msg: "Health check failed: expected application marker not found."
+    success_msg: "Correct web application is healthy."

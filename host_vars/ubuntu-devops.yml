@@ -1,0 +1,4 @@
+---
+server_owner: "Lawal"
+server_role: "remote-development-server"
+install_docker: true

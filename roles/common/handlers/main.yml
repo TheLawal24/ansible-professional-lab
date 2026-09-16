@@ -1,0 +1,4 @@
+---
+- name: Restart demo service
+  ansible.builtin.debug:
+    msg: "Configuration changed, so the service would be restarted."

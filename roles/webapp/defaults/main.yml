@@ -1,0 +1,8 @@
+---
+webapp_name: "lawal-ansible-webapp"
+webapp_image: "nginx:1.27"
+webapp_container_port: 80
+webapp_host_port: 8081
+webapp_config_dir: "/opt/lawal-webapp"
+
+webapp_health_marker: "LAWAL-ANSIBLE-WEBAPP"

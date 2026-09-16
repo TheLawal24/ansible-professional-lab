@@ -1,0 +1,4 @@
+---
+environment_name: "development"
+app_port: 8080
+app_message: "Version 2 deployed automatically by Ansible"

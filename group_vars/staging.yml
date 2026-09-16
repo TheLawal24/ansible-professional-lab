@@ -1,0 +1,4 @@
+---
+environment_name: "staging"
+app_port: 8080
+app_message: "Hello from Staging"

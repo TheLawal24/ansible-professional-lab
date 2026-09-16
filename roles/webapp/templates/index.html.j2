@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{{ company_name }}</title>
+</head>
+<body>
+  <h1>{{ company_name }}</h1>
+
+  <p>Environment: {{ environment_name }}</p>
+  <p>Server: {{ ansible_facts["hostname"] }}</p>
+  <p>Managed by Ansible</p>
+  <p>{{ app_message }}</p>
+
+  <div id="health-marker">
+    {{ webapp_health_marker }}
+  </div>
+</body>
+</html>

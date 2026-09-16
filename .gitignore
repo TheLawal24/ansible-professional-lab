@@ -1,0 +1,7 @@
+*.retry
+__pycache__/
+*.py[cod]
+
+vault-pass.txt
+.vault-pass
+*.vault-password

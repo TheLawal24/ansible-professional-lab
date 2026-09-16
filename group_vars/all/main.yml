@@ -1,0 +1,10 @@
+---
+company_name: "Lawal DevOps Lab"
+
+common_packages:
+  - curl
+  - git
+  - unzip
+  - htop
+
+timezone: "UTC"

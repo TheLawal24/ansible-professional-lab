@@ -1,0 +1,6 @@
+---
+- name: Restart web application
+  ansible.builtin.command:
+    cmd: docker restart {{ webapp_name }}
+  register: webapp_restart
+  changed_when: webapp_restart.rc == 0

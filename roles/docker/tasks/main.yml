@@ -1,0 +1,32 @@
+---
+- name: Check whether Docker is installed
+  ansible.builtin.command:
+    cmd: docker --version
+  register: docker_version
+  changed_when: false
+  failed_when: false
+
+- name: Fail if Docker is not installed
+  ansible.builtin.fail:
+    msg: "Docker is not installed on this host. A Docker bootstrap role is required."
+  when: docker_version.rc != 0
+
+- name: Display installed Docker version
+  ansible.builtin.debug:
+    msg: "{{ docker_version.stdout }}"
+  when: docker_version.rc == 0
+
+- name: Ensure Docker service is enabled and running
+  ansible.builtin.service:
+    name: docker
+    state: started
+    enabled: true
+  become: true
+
+- name: Ensure remote user belongs to Docker group
+  ansible.builtin.user:
+    name: "{{ ansible_user }}"
+    groups:
+      - docker
+    append: true
+  become: true

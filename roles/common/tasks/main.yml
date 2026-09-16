@@ -1,0 +1,58 @@
+---
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+  become: true
+
+- name: Install common packages
+  ansible.builtin.apt:
+    name: "{{ common_packages }}"
+    state: present
+  become: true
+
+- name: Display environment information
+  ansible.builtin.debug:
+    msg:
+      - "Company: {{ company_name }}"
+      - "Environment: {{ environment_name | default('not assigned') }}"
+      - "Application port: {{ app_port | default('not assigned') }}"
+
+- name: Deploy application configuration
+  ansible.builtin.template:
+    src: app.conf.j2
+    dest: /tmp/app.conf
+    mode: "0644"
+  notify: Restart demo service
+
+- name: Display server facts
+  ansible.builtin.debug:
+    msg:
+      - 'Hostname: {{ ansible_facts["hostname"] }}'
+      - 'OS: {{ ansible_facts["distribution"] }} {{ ansible_facts["distribution_version"] }}'
+      - 'Architecture: {{ ansible_facts["architecture"] }}'
+      - 'Owner: {{ server_owner }}'
+      - 'Role: {{ server_role }}'
+
+- name: Development-only task
+  ansible.builtin.debug:
+    msg: "This task runs only in Development."
+  when: environment_name == "development"
+
+- name: Production-only task
+  ansible.builtin.debug:
+    msg: "This task runs only in Production."
+  when: environment_name == "production"
+
+- name: Display application components
+  ansible.builtin.debug:
+    msg: "Configuring component: {{ item }}"
+  loop:
+    - web
+    - api
+    - monitoring
+
+- name: Confirm Vault variable is available
+  ansible.builtin.debug:
+    msg: "Vault secret loaded successfully."
+  when: vault_demo_password is defined
